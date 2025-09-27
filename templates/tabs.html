@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard • Gas Turbine Emissions Insights</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-nav">
+      <div class="nav-inner">
+        <div class="brand"><span class="logo-dot"></span>GT Insights</div>
+        <nav class="nav-links">
+          <a href="/">Home</a>
+          <a href="/dashboard" class="btn-cta">Dashboard</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container section">
+      <h1>Gas turbine emissions dashboard</h1>
+      <p class="subhead">All visuals are computed client-side from <code>static/data/gt_full.csv</code>.</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="nox">NOx concentration performance</button>
+        <button class="tab-btn" data-tab="proxy">Load-normalised proxy indices</button>
+      </div>
+
+      <section id="tab-nox" class="tab-panel show">
+        <h2>NOx concentration performance</h2>
+        <p class="subhead">Change the regulatory or internal limit to recalculate exceedance statistics instantly.</p>
+
+        <div class="card" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+          <label for="nox-limit">NOx limit (mg/Nm³)</label>
+          <input id="nox-limit" type="number" min="1" step="1" value="70" style="padding:6px 10px;border-radius:8px;border:1px solid var(--ring);width:120px" />
+        </div>
+
+        <div class="grid-kpi">
+          <div class="card">
+            <div class="kpi-label">Average NOx</div>
+            <div class="kpi-value" id="kpi-nox-avg">–</div>
+            <div class="kpi-chips" id="nox-kpi-chips"></div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">P95 NOx</div>
+            <div class="kpi-value" id="kpi-nox-p95">–</div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">Within limit</div>
+            <div class="kpi-value" id="kpi-nox-within">–</div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">Sample hours</div>
+            <div class="kpi-value" id="kpi-nox-hours">–</div>
+            <p class="subhead" style="margin:6px 0 0">Count of valid hourly observations.</p>
+          </div>
+        </div>
+
+        <div class="grid-charts">
+          <div class="card chart">
+            <div class="chart-title">Monthly NOx trend vs limit</div>
+            <div class="chart-box">
+              <canvas id="chartNoxMonthly"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="chart-title">Monthly summary</div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Month</th>
+                    <th>Avg NOx</th>
+                    <th>P95 NOx</th>
+                    <th>% within</th>
+                    <th>NOx/TEY</th>
+                    <th>CO/TEY</th>
+                    <th>Avg TEY</th>
+                  </tr>
+                </thead>
+                <tbody id="table-monthly-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-proxy" class="tab-panel">
+        <h2>Load-normalised proxy emissions indices</h2>
+        <p class="subhead">Ratios are based on concentration divided by generated electricity (TEY). Use them to understand operational efficiency when stack flow data is unavailable.</p>
+
+        <div class="grid-kpi">
+          <div class="card">
+            <div class="kpi-label">Average NOx / TEY</div>
+            <div class="kpi-value" id="kpi-nox-proxy">–</div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">Average CO / TEY</div>
+            <div class="kpi-value" id="kpi-co-proxy">–</div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">Average load (TEY)</div>
+            <div class="kpi-value" id="kpi-avg-load">–</div>
+          </div>
+        </div>
+
+        <div class="grid-charts">
+          <div class="card chart">
+            <div class="chart-title">Monthly proxy trend</div>
+            <div class="chart-box">
+              <canvas id="chartProxyMonthly"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="chart-title">Load quartile breakdown</div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Load bin</th>
+                    <th>Hours</th>
+                    <th>Avg TEY</th>
+                    <th>Avg NOx/TEY</th>
+                    <th>Avg CO/TEY</th>
+                  </tr>
+                </thead>
+                <tbody id="table-load-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

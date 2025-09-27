@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gas Turbine Emissions Insights</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body style="--hero:url('/static/assets/hero.png')">
+    <header class="site-nav">
+      <div class="nav-inner">
+        <div class="brand"><span class="logo-dot"></span>GT Insights</div>
+        <nav class="nav-links">
+          <a href="/">Home</a>
+          <a href="/dashboard" class="btn-cta">Open dashboard</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <h1 class="hero-title">Operational air emissions made tangible</h1>
+          <p class="hero-sub">Track NOx concentration performance and load-normalised proxy indices from your gas turbine dataset.</p>
+          <div class="hero-actions">
+            <a class="btn-cta" href="/dashboard">Go to dashboard</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <h2>What&apos;s inside?</h2>
+          <p class="subhead">Two ready-made analyses using the hourly UCI gas turbine dataset stored in <code>static/data/gt_full.csv</code>.</p>
+          <ul>
+            <li>NOx concentration performance, exceedance rates against a configurable limit, and monthly percentiles.</li>
+            <li>Load-normalised proxy emission indices (NOx/TEY and CO/TEY) trended monthly and segmented by load quartile.</li>
+          </ul>
+          <p class="subhead">Click through to interact with the analyses.</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
