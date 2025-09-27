@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard • Gas Turbine Emissions Insights</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-nav">
+      <div class="nav-inner">
+        <div class="brand"><span class="logo-dot"></span>GT Insights</div>
+        <nav class="nav-links">
+          <a href="/">Home</a>
+          <a href="/dashboard" class="btn-cta">Dashboard</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container section">
+      <h1>Gas turbine emissions dashboard</h1>
+      <p class="subhead">All visuals are computed client-side from <code>static/data/gt_full.csv</code>, <code>carbonperdaywith600mw.txt</code>, and <code>carbonperproduction.txt</code>.</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="nox">NOx concentration performance</button>
+        <button class="tab-btn" data-tab="proxy">Load-normalised proxy indices</button>
+        <button class="tab-btn" data-tab="co2">CO₂ footprint highlights</button>
+      </div>
+
+      <section id="tab-nox" class="tab-panel show">
+        <h2>NOx concentration performance</h2>
+        <p class="subhead">Change the regulatory or internal limit to recalculate exceedance statistics instantly.</p>
+
+        <div class="card control-card">
+          <label for="nox-limit">NOx limit (mg/Nm³)</label>
+          <input id="nox-limit" class="control-input" type="number" min="1" step="1" value="70" />
+        </div>
+
+        <div class="grid-kpi">
+          <div class="card">
+            <div class="kpi-label">Average NOx</div>
+            <div class="kpi-value" id="kpi-nox-avg">–</div>
+            <div class="kpi-chips" id="nox-kpi-chips"></div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">P95 NOx</div>
+            <div class="kpi-value" id="kpi-nox-p95">–</div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">Within limit</div>
+            <div class="kpi-value" id="kpi-nox-within">–</div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">Sample hours</div>
+            <div class="kpi-value" id="kpi-nox-hours">–</div>
+            <p class="kpi-note">Count of valid hourly observations.</p>
+          </div>
+        </div>
+
+        <div class="grid-charts">
+          <div class="card chart">
+            <div class="chart-title">Monthly NOx trend vs limit</div>
+            <div class="chart-box">
+              <canvas id="chartNoxMonthly"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="chart-title">Monthly summary</div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Month</th>
+                    <th>Avg NOx</th>
+                    <th>P95 NOx</th>
+                    <th>% within</th>
+                    <th>NOx/TEY</th>
+                    <th>CO/TEY</th>
+                    <th>Avg TEY</th>
+                  </tr>
+                </thead>
+                <tbody id="table-monthly-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-proxy" class="tab-panel">
+        <h2>Load-normalised proxy emissions indices</h2>
+        <p class="subhead">Ratios are based on concentration divided by generated electricity (TEY). Use them to understand operational efficiency when stack flow data is unavailable.</p>
+
+        <div class="grid-kpi">
+          <div class="card">
+            <div class="kpi-label">Average NOx / TEY</div>
+            <div class="kpi-value" id="kpi-nox-proxy">–</div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">Average CO / TEY</div>
+            <div class="kpi-value" id="kpi-co-proxy">–</div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">Average load (TEY)</div>
+            <div class="kpi-value" id="kpi-avg-load">–</div>
+          </div>
+        </div>
+
+        <div class="grid-charts">
+          <div class="card chart">
+            <div class="chart-title">Monthly proxy trend</div>
+            <div class="chart-box">
+              <canvas id="chartProxyMonthly"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="chart-title">Load quartile breakdown</div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Load bin</th>
+                    <th>Hours</th>
+                    <th>Avg TEY</th>
+                    <th>Avg NOx/TEY</th>
+                    <th>Avg CO/TEY</th>
+                  </tr>
+                </thead>
+                <tbody id="table-load-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-co2" class="tab-panel">
+        <h2>CO₂ footprint highlights</h2>
+        <p class="subhead">Summaries merge daily totals from <code>carbonperdaywith600mw.txt</code> with production-normalised intensity values from <code>carbonperproduction.txt</code>.</p>
+
+        <div class="grid-kpi">
+          <div class="card">
+            <div class="kpi-label">Average daily CO₂</div>
+            <div class="kpi-value" id="kpi-co2-avg">–</div>
+            <p class="kpi-meta">tonnes per day</p>
+          </div>
+          <div class="card">
+            <div class="kpi-label">Total CO₂ captured in file</div>
+            <div class="kpi-value" id="kpi-co2-total">–</div>
+            <p class="kpi-meta">sum of daily tonnes</p>
+          </div>
+          <div class="card">
+            <div class="kpi-label">Lowest daily footprint</div>
+            <div class="kpi-value" id="kpi-co2-best">–</div>
+            <p class="kpi-meta" id="kpi-co2-best-meta"></p>
+          </div>
+          <div class="card">
+            <div class="kpi-label">Highest daily footprint</div>
+            <div class="kpi-value" id="kpi-co2-worst">–</div>
+            <p class="kpi-meta" id="kpi-co2-worst-meta"></p>
+          </div>
+        </div>
+
+        <div class="grid-kpi kpi-single">
+          <div class="card">
+            <div class="kpi-label">Average CO₂ per production unit</div>
+            <div class="kpi-value" id="kpi-co2-intensity">–</div>
+            <p class="kpi-meta">t CO₂ per unit</p>
+          </div>
+        </div>
+
+        <div class="grid-charts">
+          <div class="card chart">
+            <div class="chart-title">Daily CO₂ profile</div>
+            <div class="chart-box">
+              <canvas id="chartCo2Daily"></canvas>
+            </div>
+          </div>
+          <div class="card chart">
+            <div class="chart-title">CO₂ per production unit</div>
+            <div class="chart-box">
+              <canvas id="chartCo2Intensity"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
