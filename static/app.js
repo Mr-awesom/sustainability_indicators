@@ -7,7 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const btns = document.querySelectorAll(".tab-btn");
   const panels = {
     nox: document.getElementById("tab-nox"),
-    proxy: document.getElementById("tab-proxy")
+    proxy: document.getElementById("tab-proxy"),
+    co2: document.getElementById("tab-co2")
   };
 
   btns.forEach((btn) => {
@@ -26,11 +27,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ---------- State ----------
 let rawData = [];
-let chartNoxMonthly, chartProxyMonthly;
+let co2Monthly = [];
+let chartNoxMonthly, chartProxyMonthly, chartCo2Monthly, chartCo2Intensity;
 
 // ---------- Data loading & preparation ----------
 async function initDashboard() {
-  rawData = await loadGTData("/static/data/gt_full.csv");
+  const [gtRows, co2Rows] = await Promise.all([
+    loadCsv("/static/data/gt_full.csv"),
+    loadCsv("/static/data/gt_with_synthetic_co2_monthly.csv")
+  ]);
+
+  rawData = gtRows;
+  co2Monthly = co2Rows.map((row) => ({
+    month: row.month,
+    netMwh: row.net_mwh,
+    co2Tonnes: row.co2_t,
+    avgIntensity: row.avg_intensity_kg_per_mwh,
+    etsCost: row.ets_cost_eur
+  }));
   const limitInput = document.getElementById("nox-limit");
   limitInput.value = DEFAULT_NOX_LIMIT;
   limitInput.addEventListener("change", () => {
@@ -44,7 +58,7 @@ async function initDashboard() {
   renderAll(DEFAULT_NOX_LIMIT);
 }
 
-async function loadGTData(path) {
+async function loadCsv(path) {
   const resp = await fetch(path);
   const text = await resp.text();
   const lines = text.trim().split(/\r?\n/).filter(Boolean);
@@ -54,7 +68,8 @@ async function loadGTData(path) {
     const row = {};
     headers.forEach((h, idx) => {
       if (!h) return;
-      row[h] = Number(values[idx]);
+      const numeric = Number(values[idx]);
+      row[h] = Number.isNaN(numeric) ? values[idx] : numeric;
     });
     return row;
   });
@@ -72,6 +87,7 @@ function renderAll(limit) {
   renderProxyChart(summaries.monthly);
   fillMonthlyTable(summaries.monthly);
   fillLoadBinTable(summaries.loadBins);
+  if (co2Monthly.length) renderCo2(co2Monthly);
 }
 
 function computeSummaries(rows, limit) {
@@ -362,6 +378,169 @@ function fillLoadBinTable(bins) {
   });
 }
 
+function renderCo2(monthly) {
+  if (!monthly.length) return;
+
+  const totals = monthly.reduce(
+    (acc, month) => {
+      acc.netMwh += month.netMwh;
+      acc.co2Tonnes += month.co2Tonnes;
+      acc.etsCost += month.etsCost;
+      acc.weightedIntensity += month.avgIntensity * month.netMwh;
+      return acc;
+    },
+    { netMwh: 0, co2Tonnes: 0, etsCost: 0, weightedIntensity: 0 }
+  );
+
+  const avgIntensity = totals.netMwh ? totals.weightedIntensity / totals.netMwh : 0;
+
+  setText("kpi-co2-mwh", formatNumber(totals.netMwh, 0));
+  setText("kpi-co2-tonnes", formatNumber(totals.co2Tonnes, 0));
+  setText("kpi-co2-intensity", formatNumber(avgIntensity, 1));
+  setText("kpi-co2-ets", formatCurrency(totals.etsCost));
+
+  const peakEmission = monthly.reduce((max, m) => (m.co2Tonnes > max.co2Tonnes ? m : max), monthly[0]);
+  const lowestIntensity = monthly.reduce((min, m) => (m.avgIntensity < min.avgIntensity ? m : min), monthly[0]);
+  const chips = [
+    `Peak month ${peakEmission.month}: ${formatNumber(peakEmission.co2Tonnes, 0)} t`,
+    `Lowest intensity ${lowestIntensity.month}: ${formatNumber(lowestIntensity.avgIntensity, 1)} kg/MWh`
+  ];
+  setChips("co2-kpi-chips", chips, "warn");
+
+  renderCo2EmissionsChart(monthly);
+  renderCo2IntensityChart(monthly);
+  fillCo2Table(monthly);
+}
+
+function renderCo2EmissionsChart(monthly) {
+  const ctx = document.getElementById("chartCo2Monthly");
+  if (!ctx) return;
+
+  const labels = monthly.map((m) => m.month);
+  const co2 = monthly.map((m) => m.co2Tonnes);
+  const cost = monthly.map((m) => m.etsCost);
+
+  const data = {
+    labels,
+    datasets: [
+      {
+        type: "bar",
+        label: "CO₂ (t)",
+        data: co2,
+        backgroundColor: "rgba(59, 130, 246, 0.35)",
+        borderColor: "#3b82f6",
+        borderWidth: 1,
+        borderRadius: 6
+      },
+      {
+        type: "line",
+        label: "ETS cost (€)",
+        data: cost,
+        yAxisID: "y2",
+        borderColor: "#ef4444",
+        tension: 0.25,
+        pointRadius: 0
+      }
+    ]
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: "Tonnes" }
+      },
+      y2: {
+        position: "right",
+        beginAtZero: true,
+        grid: { drawOnChartArea: false },
+        title: { display: true, text: "Euro" }
+      }
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label(context) {
+            if (context.dataset.type === "line") {
+              return `${context.dataset.label}: ${formatCurrency(context.parsed.y)}`;
+            }
+            return `${context.dataset.label}: ${formatNumber(context.parsed.y, 0)} t`;
+          }
+        }
+      }
+    }
+  };
+
+  if (chartCo2Monthly) {
+    chartCo2Monthly.data = data;
+    chartCo2Monthly.options = options;
+    chartCo2Monthly.update();
+  } else {
+    chartCo2Monthly = new Chart(ctx, { type: "bar", data, options });
+  }
+}
+
+function renderCo2IntensityChart(monthly) {
+  const ctx = document.getElementById("chartCo2Intensity");
+  if (!ctx) return;
+
+  const labels = monthly.map((m) => m.month);
+  const intensity = monthly.map((m) => m.avgIntensity);
+
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: "Carbon intensity (kg/MWh)",
+        data: intensity,
+        borderColor: "#10b981",
+        backgroundColor: "rgba(16, 185, 129, 0.25)",
+        tension: 0.25,
+        pointRadius: 0,
+        fill: true
+      }
+    ]
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: false,
+        title: { display: true, text: "kg CO₂ per MWh" }
+      }
+    }
+  };
+
+  if (chartCo2Intensity) {
+    chartCo2Intensity.data = data;
+    chartCo2Intensity.options = options;
+    chartCo2Intensity.update();
+  } else {
+    chartCo2Intensity = new Chart(ctx, { type: "line", data, options });
+  }
+}
+
+function fillCo2Table(monthly) {
+  const tbody = document.getElementById("table-co2-body");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  monthly.forEach((m) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${m.month}</td>
+      <td>${formatNumber(m.netMwh, 0)}</td>
+      <td>${formatNumber(m.co2Tonnes, 0)}</td>
+      <td>${formatNumber(m.avgIntensity, 1)}</td>
+      <td>${formatCurrency(m.etsCost)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
 // ---------- Generic helpers ----------
 function safeDivide(num, den) {
   return den ? num / den : NaN;
@@ -407,5 +586,18 @@ function setChips(containerId, msgs, tone = "warn") {
 }
 
 function formatNumber(value, digits) {
-  return Number.isFinite(value) ? value.toFixed(digits) : "–";
+  return Number.isFinite(value)
+    ? value.toLocaleString(undefined, {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+      })
+    : "–";
+}
+
+function formatCurrency(value) {
+  return Number.isFinite(value)
+    ? `€${value.toLocaleString(undefined, {
+        maximumFractionDigits: 0
+      })}`
+    : "–";
 }
