@@ -47,6 +47,12 @@
   gap: 8px 16px;
 }
 
+.score-summary {
+  margin: 0 0 16px 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 .score-item {
   display: flex;
   justify-content: space-between;

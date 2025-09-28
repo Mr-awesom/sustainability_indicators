@@ -205,6 +205,17 @@
             <span class="score-value">{{ reg_compliance.score or 0 }} / 100</span>
           </div>
 
+          {% set readiness = reg_compliance.score or 0 %}
+          <p class="score-summary">
+            {% if readiness >= 100 %}
+              Fully compliant – keep monitoring for future regulatory changes.
+            {% elif readiness >= 70 %}
+              Strong progress – close out the remaining actions to reach 100% readiness.
+            {% else %}
+              Prioritise the mandatory filings below to lift the organisation&apos;s readiness.
+            {% endif %}
+          </p>
+
           <div class="score-breakdown">
             <div class="score-item">
               <span class="score-label">EU ETS compliance</span>
