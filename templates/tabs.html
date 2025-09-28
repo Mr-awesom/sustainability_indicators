@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Dashboard • Gas Turbine Emissions Insights</title>
     <link rel="stylesheet" href="/static/style.css" />
+    <link rel="stylesheet" href="/static/regulatory.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
     <script src="/static/app.js" defer></script>
   </head>
@@ -21,12 +22,13 @@
 
     <main class="container section">
       <h1>Gas turbine emissions dashboard</h1>
-      <p class="subhead">All visuals are computed client-side from <code>static/data/gt_full.csv</code>.</p>
+      
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="nox">NOx concentration performance</button>
         <button class="tab-btn" data-tab="proxy">Load-normalised proxy indices</button>
         <button class="tab-btn" data-tab="co2">CO₂ footprint &amp; ETS exposure</button>
+        <button class="tab-btn" data-tab="regulationscore">Regulatory Readiness Score</button>
       </div>
 
       <section id="tab-nox" class="tab-panel show">
@@ -191,6 +193,61 @@
           </div>
         </div>
       </section>
+      <!--Regulation Score tab-->
+  <section class="tab-panel {% if active_tab == 'regulationscore' %}show{% endif %}" id="tab-regulationscore" role="region" aria-labelledby="tabbtn-efficiency">
+    <div class="score-container">
+      <div class="score-header">Regulatory Readiness Score</div>
+      <div class="score-bar">
+        <div class="score-fill" id="scoreFill" style="width: {{ reg_compliance.score or 0 }}%;">{{ reg_compliance.score or 0 }} /
+          100</div>
+      </div>
+
+      <div class="score-breakdown">
+        <div class="score-item">EU ETS Compliance <span>{{ reg_compliance.ets or 0 }}%</span></div>
+        <div class="score-item">CSRD Alignment <span>{{ reg_compliance.csrd or 0 }}%</span></div>
+        <div class="score-item">EED Compliance <span>{{ reg_compliance.eed or 0 }}%</span></div>
+        <div class="score-item">US EPA GHG Reporting <span>{{ reg_compliance.epa_ghg or 0 }}%</span></div>
+        <div class="score-item">Data Quality & Traceability <span>{{ reg_compliance.data_quality or 0 }}%</span></div>
+        <div class="score-item">Deadlines & Gaps <span>{{ reg_compliance.reporting_gaps or 0 }}%</span></div>
+      </div>
+    </div>
+
+    <form id="regulation-form" action="{{ url_for('dashboard') }}" method="POST">
+      <fieldset>
+        <legend><strong>Regulatory Compliance Checklist</strong></legend>
+
+        <h4>EU ETS Compliance</h4>
+        <label><input type="checkbox" name="ets_verified"> Verified emissions report submitted</label><br>
+        <label><input type="checkbox" name="ets_allowances"> Allowances surrendered for last period</label><br>
+        <label><input type="checkbox" name="ets_monitoring"> Monitoring plan approved and up to date</label><br>
+
+        <h4>CSRD Alignment</h4>
+        <label><input type="checkbox" name="csrd_esg"> ESG disclosures completed</label><br>
+        <label><input type="checkbox" name="csrd_materiality"> Double materiality assessment done</label><br>
+        <label><input type="checkbox" name="csrd_taxonomy"> EU taxonomy alignment assessed</label><br>
+
+        <h4>Energy Efficiency Directive (EED)</h4>
+        <label><input type="checkbox" name="eed_audit"> Energy audit conducted within last 4 years</label><br>
+        <label><input type="checkbox" name="eed_plan"> Efficiency improvement plan in place</label><br>
+
+        <h4>US EPA GHG Reporting</h4>
+        <label><input type="checkbox" name="epa_reporting"> Facility registered with e-GGRT</label><br>
+        <label><input type="checkbox" name="epa_submitted"> Annual GHG report submitted</label><br>
+
+        <h4>Data Quality & Traceability</h4>
+        <label><input type="checkbox" name="data_calibration"> Emission sensors calibrated</label><br>
+        <label><input type="checkbox" name="data_audit"> Audit trail available for all data</label><br>
+        <label><input type="checkbox" name="data_gdpr"> Data storage is GDPR-compliant</label><br>
+
+        <h4>Deadlines & Gaps</h4>
+        <label><input type="checkbox" name="deadlines_gap"> No overdue reports or missing documents</label><br>
+
+        <br>
+        <button type="submit">Update Regulatory Readiness Score</button>
+      </fieldset>
+    </form>
+
+  </section>
     </main>
   </body>
 </html>
