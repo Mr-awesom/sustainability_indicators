@@ -227,9 +227,7 @@
         <div class="score-item">CSRD Alignment <span>{{ reg_compliance.csrd or 0 }}%</span>
           <p class="kpi-desc">Progress against sustainability disclosure requirements.</p>
         </div>
-        <div class="score-item">EED Compliance <span>{{ reg_compliance.eed or 0 }}%</span>
-          <p class="kpi-desc">Energy efficiency audits and improvement plans.</p>
-        </div>
+
         <div class="score-item">US EPA GHG Reporting <span>{{ reg_compliance.epa_ghg or 0 }}%</span>
           <p class="kpi-desc">Status of US greenhouse gas registration and submissions.</p>
         </div>
@@ -255,10 +253,6 @@
         <label><input type="checkbox" name="csrd_esg"> ESG disclosures completed</label><br>
         <label><input type="checkbox" name="csrd_materiality"> Double materiality assessment done</label><br>
         <label><input type="checkbox" name="csrd_taxonomy"> EU taxonomy alignment assessed</label><br>
-
-        <h4>Energy Efficiency Directive (EED)</h4>
-        <label><input type="checkbox" name="eed_audit"> Energy audit conducted within last 4 years</label><br>
-        <label><input type="checkbox" name="eed_plan"> Efficiency improvement plan in place</label><br>
 
         <h4>US EPA GHG Reporting</h4>
         <label><input type="checkbox" name="epa_reporting"> Facility registered with e-GGRT</label><br>

@@ -22,7 +22,6 @@ def dashboard():
         'score': 0,
         'ets': 0,
         'csrd': 0,
-        'eed': 0,
         'epa_ghg': 0,
         'data_quality': 0,
         'reporting_gaps': 0
@@ -41,7 +40,6 @@ def calculate_regulatory_readiness_score(form_data):
     # Count checked items in each category
     ets_items = ['ets_verified', 'ets_allowances', 'ets_monitoring']
     csrd_items = ['csrd_esg', 'csrd_materiality', 'csrd_taxonomy']
-    eed_items = ['eed_audit', 'eed_plan']
     epa_items = ['epa_reporting', 'epa_submitted']
     data_items = ['data_calibration', 'data_audit', 'data_gdpr']
     deadline_items = ['deadlines_gap']
@@ -49,19 +47,17 @@ def calculate_regulatory_readiness_score(form_data):
     # Calculate scores for each category
     ets_score = sum(1 for item in ets_items if form_data.get(item) == 'on') / len(ets_items) * 100
     csrd_score = sum(1 for item in csrd_items if form_data.get(item) == 'on') / len(csrd_items) * 100
-    eed_score = sum(1 for item in eed_items if form_data.get(item) == 'on') / len(eed_items) * 100
     epa_score = sum(1 for item in epa_items if form_data.get(item) == 'on') / len(epa_items) * 100
     data_score = sum(1 for item in data_items if form_data.get(item) == 'on') / len(data_items) * 100
     deadline_score = sum(1 for item in deadline_items if form_data.get(item) == 'on') / len(deadline_items) * 100
     
     # Calculate overall score (weighted average)
-    overall_score = round((ets_score + csrd_score + eed_score + epa_score + data_score + deadline_score) / 6)
+    overall_score = round((ets_score + csrd_score + epa_score + data_score + deadline_score) / 6)
     
     return {
         'score': overall_score,
         'ets': round(ets_score),
         'csrd': round(csrd_score),
-        'eed': round(eed_score),
         'epa_ghg': round(epa_score),
         'data_quality': round(data_score),
         'reporting_gaps': round(deadline_score)
