@@ -25,13 +25,12 @@
       <p class="subhead">All visuals are computed client-side from <code>static/data/gt_full.csv</code>.</p>
 
       <div class="tabs">
-        <button class="tab-btn {{ 'active' if active_tab == 'nox' else '' }}" data-tab="nox">NOx concentration performance</button>
-        <button class="tab-btn {{ 'active' if active_tab == 'proxy' else '' }}" data-tab="proxy">Load-normalised proxy indices</button>
-        <button class="tab-btn {{ 'active' if active_tab == 'co2' else '' }}" data-tab="co2">CO₂ footprint &amp; ETS exposure</button>
-        <button class="tab-btn {{ 'active' if active_tab == 'regulationscore' else '' }}" data-tab="regulationscore">Regulatory Readiness Score</button>
+        <button class="tab-btn {% if active_tab == 'nox' %}active{% endif %}" data-tab="nox">NOx concentration performance</button>
+        <button class="tab-btn {% if active_tab == 'proxy' %}active{% endif %}" data-tab="proxy">Load-normalised proxy indices</button>
+        <button class="tab-btn {% if active_tab == 'regulationscore' %}active{% endif %}" data-tab="regulationscore">Regulatory readiness score</button>
       </div>
 
-      <section id="tab-nox" class="tab-panel {{ 'show' if active_tab == 'nox' else '' }}">
+      <section id="tab-nox" class="tab-panel {% if active_tab == 'nox' %}show{% endif %}">
         <h2>NOx concentration performance</h2>
         <p class="subhead">Change the regulatory or internal limit to recalculate exceedance statistics instantly.</p>
 
@@ -90,7 +89,7 @@
         </div>
       </section>
 
-      <section id="tab-proxy" class="tab-panel {{ 'show' if active_tab == 'proxy' else '' }}">
+      <section id="tab-proxy" class="tab-panel {% if active_tab == 'proxy' %}show{% endif %}">
         <h2>Load-normalised proxy emissions indices</h2>
         <p class="subhead">Ratios are based on concentration divided by generated electricity (TEY). Use them to understand operational efficiency when stack flow data is unavailable.</p>
 
@@ -136,145 +135,88 @@
         </div>
       </section>
 
-      <section id="tab-co2" class="tab-panel {{ 'show' if active_tab == 'co2' else '' }}">
-        <h2>CO₂ footprint &amp; ETS exposure</h2>
-        <p class="subhead">Monthly view derived from <code>static/data/gt_with_synthetic_co2_*.csv</code>. Explore tonnes emitted, carbon intensity and market exposure using the synthetic EUA pricing signal.</p>
+      <section id="tab-regulationscore" class="tab-panel {% if active_tab == 'regulationscore' %}show{% endif %}">
+        <h2>Regulatory readiness score</h2>
+        <p class="subhead">Track progress across core compliance programmes and surface any remaining reporting gaps.</p>
 
-        <div class="grid-kpi">
-          <div class="card">
-            <div class="kpi-label">Net generation analysed</div>
-            <div class="kpi-value" id="kpi-co2-mwh">–</div>
-            <div class="kpi-chips" id="co2-kpi-chips"></div>
+        <div class="score-container" role="group" aria-labelledby="score-overview">
+          <div class="score-header" id="score-overview">Overall readiness</div>
+          <div class="score-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ reg_compliance.score or 0 }}">
+            <div class="score-fill" style="width: {{ reg_compliance.score or 0 }}%"></div>
           </div>
-          <div class="card">
-            <div class="kpi-label">Total CO₂</div>
-            <div class="kpi-value" id="kpi-co2-tonnes">–</div>
-          </div>
-          <div class="card">
-            <div class="kpi-label">Avg carbon intensity</div>
-            <div class="kpi-value" id="kpi-co2-intensity">–</div>
-          </div>
-          <div class="card">
-            <div class="kpi-label">ETS exposure</div>
-            <div class="kpi-value" id="kpi-co2-ets">–</div>
-          </div>
-        </div>
-
-        <div class="grid-charts two">
-          <div class="card chart">
-            <div class="chart-title">Monthly CO₂ emissions vs ETS cost</div>
-            <div class="chart-box">
-              <canvas id="chartCo2Monthly"></canvas>
-            </div>
-          </div>
-          <div class="card chart">
-            <div class="chart-title">Carbon intensity trend</div>
-            <div class="chart-box">
-              <canvas id="chartCo2Intensity"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:12px">
-          <div class="chart-title">Monthly CO₂ summary</div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Month</th>
-                  <th>Net MWh</th>
-                  <th>CO₂ (t)</th>
-                  <th>Intensity (kg/MWh)</th>
-                  <th>ETS cost (€)</th>
-                </tr>
-              </thead>
-              <tbody id="table-co2-body"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <section id="tab-regulationscore" class="tab-panel {{ 'show' if active_tab == 'regulationscore' else '' }}" role="region" aria-labelledby="tabbtn-regulationscore">
-        <h2>Regulatory readiness scorecard</h2>
-        <p class="subhead">Track progress across key compliance regimes and capture outstanding actions before reporting deadlines.</p>
-
-        <div class="score-card">
-          <div class="score-header">Overall readiness</div>
-          <div class="score-bar" role="img" aria-label="Regulatory readiness {{ reg_compliance.score }} percent">
-            <div class="score-fill" id="scoreFill" style="width: {{ reg_compliance.score or 0 }}%"></div>
-            <span class="score-value">{{ reg_compliance.score or 0 }} / 100</span>
-          </div>
-
-          {% set readiness = reg_compliance.score or 0 %}
-          <p class="score-summary">
-            {% if readiness >= 100 %}
-              Fully compliant – keep monitoring for future regulatory changes.
-            {% elif readiness >= 70 %}
-              Strong progress – close out the remaining actions to reach 100% readiness.
-            {% else %}
-              Prioritise the mandatory filings below to lift the organisation&apos;s readiness.
-            {% endif %}
-          </p>
+          <div class="score-total"><strong>{{ reg_compliance.score or 0 }}</strong><span class="score-max">/ 100</span></div>
 
           <div class="score-breakdown">
             <div class="score-item">
-              <span class="score-label">EU ETS compliance</span>
-              <span class="score-metric">{{ reg_compliance.ets or 0 }}%</span>
+              <span>EU ETS compliance</span>
+              <strong>{{ reg_compliance.ets or 0 }}%</strong>
             </div>
             <div class="score-item">
-              <span class="score-label">CSRD alignment</span>
-              <span class="score-metric">{{ reg_compliance.csrd or 0 }}%</span>
+              <span>CSRD alignment</span>
+              <strong>{{ reg_compliance.csrd or 0 }}%</strong>
             </div>
             <div class="score-item">
-              <span class="score-label">EED compliance</span>
-              <span class="score-metric">{{ reg_compliance.eed or 0 }}%</span>
+              <span>Energy Efficiency Directive</span>
+              <strong>{{ reg_compliance.eed or 0 }}%</strong>
             </div>
             <div class="score-item">
-              <span class="score-label">US EPA GHG reporting</span>
-              <span class="score-metric">{{ reg_compliance.epa_ghg or 0 }}%</span>
+              <span>US EPA GHG reporting</span>
+              <strong>{{ reg_compliance.epa_ghg or 0 }}%</strong>
             </div>
             <div class="score-item">
-              <span class="score-label">Data quality &amp; traceability</span>
-              <span class="score-metric">{{ reg_compliance.data_quality or 0 }}%</span>
+              <span>Data quality &amp; traceability</span>
+              <strong>{{ reg_compliance.data_quality or 0 }}%</strong>
             </div>
             <div class="score-item">
-              <span class="score-label">Deadlines &amp; gaps</span>
-              <span class="score-metric">{{ reg_compliance.reporting_gaps or 0 }}%</span>
+              <span>Deadlines &amp; outstanding gaps</span>
+              <strong>{{ reg_compliance.reporting_gaps or 0 }}%</strong>
             </div>
           </div>
         </div>
 
-        <form id="regulation-form" action="{{ url_for('dashboard') }}" method="POST" class="card regulation-form">
+        <form class="regulation-form" action="{{ url_for('dashboard') }}" method="post">
           <fieldset>
             <legend><strong>Regulatory compliance checklist</strong></legend>
 
-            <h3>EU ETS compliance</h3>
-            <label><input type="checkbox" name="ets_verified" {{ 'checked' if checked_fields.get('ets_verified') else '' }} /> Verified emissions report submitted</label>
-            <label><input type="checkbox" name="ets_allowances" {{ 'checked' if checked_fields.get('ets_allowances') else '' }} /> Allowances surrendered for last period</label>
-            <label><input type="checkbox" name="ets_monitoring" {{ 'checked' if checked_fields.get('ets_monitoring') else '' }} /> Monitoring plan approved and up to date</label>
+            <div class="checklist-group">
+              <h3>EU ETS compliance</h3>
+              <label><input type="checkbox" name="ets_verified" {% if form_state.get('ets_verified') %}checked{% endif %} /> Verified emissions report submitted</label>
+              <label><input type="checkbox" name="ets_allowances" {% if form_state.get('ets_allowances') %}checked{% endif %} /> Allowances surrendered for last period</label>
+              <label><input type="checkbox" name="ets_monitoring" {% if form_state.get('ets_monitoring') %}checked{% endif %} /> Monitoring plan approved and up to date</label>
+            </div>
 
-            <h3>CSRD alignment</h3>
-            <label><input type="checkbox" name="csrd_esg" {{ 'checked' if checked_fields.get('csrd_esg') else '' }} /> ESG disclosures completed</label>
-            <label><input type="checkbox" name="csrd_materiality" {{ 'checked' if checked_fields.get('csrd_materiality') else '' }} /> Double materiality assessment done</label>
-            <label><input type="checkbox" name="csrd_taxonomy" {{ 'checked' if checked_fields.get('csrd_taxonomy') else '' }} /> EU taxonomy alignment assessed</label>
+            <div class="checklist-group">
+              <h3>CSRD alignment</h3>
+              <label><input type="checkbox" name="csrd_esg" {% if form_state.get('csrd_esg') %}checked{% endif %} /> ESG disclosures completed</label>
+              <label><input type="checkbox" name="csrd_materiality" {% if form_state.get('csrd_materiality') %}checked{% endif %} /> Double materiality assessment done</label>
+              <label><input type="checkbox" name="csrd_taxonomy" {% if form_state.get('csrd_taxonomy') %}checked{% endif %} /> EU taxonomy alignment assessed</label>
+            </div>
 
-            <h3>Energy Efficiency Directive (EED)</h3>
-            <label><input type="checkbox" name="eed_audit" {{ 'checked' if checked_fields.get('eed_audit') else '' }} /> Energy audit conducted within last 4 years</label>
-            <label><input type="checkbox" name="eed_plan" {{ 'checked' if checked_fields.get('eed_plan') else '' }} /> Efficiency improvement plan in place</label>
+            <div class="checklist-group">
+              <h3>Energy Efficiency Directive (EED)</h3>
+              <label><input type="checkbox" name="eed_audit" {% if form_state.get('eed_audit') %}checked{% endif %} /> Energy audit conducted within last 4 years</label>
+              <label><input type="checkbox" name="eed_plan" {% if form_state.get('eed_plan') %}checked{% endif %} /> Efficiency improvement plan in place</label>
+            </div>
 
-            <h3>US EPA GHG reporting</h3>
-            <label><input type="checkbox" name="epa_reporting" {{ 'checked' if checked_fields.get('epa_reporting') else '' }} /> Facility registered with e-GGRT</label>
-            <label><input type="checkbox" name="epa_submitted" {{ 'checked' if checked_fields.get('epa_submitted') else '' }} /> Annual GHG report submitted</label>
+            <div class="checklist-group">
+              <h3>US EPA GHG reporting</h3>
+              <label><input type="checkbox" name="epa_reporting" {% if form_state.get('epa_reporting') %}checked{% endif %} /> Facility registered with e-GGRT</label>
+              <label><input type="checkbox" name="epa_submitted" {% if form_state.get('epa_submitted') %}checked{% endif %} /> Annual GHG report submitted</label>
+            </div>
 
-            <h3>Data quality &amp; traceability</h3>
-            <label><input type="checkbox" name="data_calibration" {{ 'checked' if checked_fields.get('data_calibration') else '' }} /> Emission sensors calibrated</label>
-            <label><input type="checkbox" name="data_audit" {{ 'checked' if checked_fields.get('data_audit') else '' }} /> Audit trail available for all data</label>
-            <label><input type="checkbox" name="data_gdpr" {{ 'checked' if checked_fields.get('data_gdpr') else '' }} /> Data storage is GDPR-compliant</label>
+            <div class="checklist-group">
+              <h3>Data quality &amp; traceability</h3>
+              <label><input type="checkbox" name="data_calibration" {% if form_state.get('data_calibration') %}checked{% endif %} /> Emission sensors calibrated</label>
+              <label><input type="checkbox" name="data_audit" {% if form_state.get('data_audit') %}checked{% endif %} /> Audit trail available for all data</label>
+              <label><input type="checkbox" name="data_gdpr" {% if form_state.get('data_gdpr') %}checked{% endif %} /> Data storage is GDPR-compliant</label>
+            </div>
 
-            <h3>Deadlines &amp; gaps</h3>
-            <label><input type="checkbox" name="deadlines_gap" {{ 'checked' if checked_fields.get('deadlines_gap') else '' }} /> No overdue reports or missing documents</label>
+            <div class="checklist-group">
+              <h3>Deadlines &amp; gaps</h3>
+              <label><input type="checkbox" name="deadlines_gap" {% if form_state.get('deadlines_gap') %}checked{% endif %} /> No overdue reports or missing documents</label>
+            </div>
 
-            <button type="submit" class="btn-cta" style="margin-top:16px;width:max-content">Update regulatory readiness score</button>
+            <button type="submit" class="btn-cta">Update score</button>
           </fieldset>
         </form>
       </section>
