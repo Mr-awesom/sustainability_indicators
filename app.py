@@ -27,7 +27,7 @@ def dashboard():
         'data_quality': 0,
         'reporting_gaps': 0
     }
-    return render_template("tabs.html", active_tab="emissions", reg_compliance=reg_compliance)
+    return render_template("tabs.html", active_tab="nox", reg_compliance=reg_compliance)
 
 def calculate_regulatory_readiness_score(form_data):
     """Calculate regulatory readiness score based on form data.

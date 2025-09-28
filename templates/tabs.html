@@ -25,13 +25,13 @@
       
 
       <div class="tabs">
-        <button class="tab-btn active" data-tab="nox">NOx concentration performance</button>
-        <button class="tab-btn" data-tab="proxy">Load-normalised proxy indices</button>
-        <button class="tab-btn" data-tab="co2">CO₂ footprint &amp; ETS exposure</button>
-        <button class="tab-btn" data-tab="regulationscore">Regulatory Readiness Score</button>
+        <button class="tab-btn {% if active_tab == 'nox' %}active{% endif %}" data-tab="nox">NOx concentration performance</button>
+        <button class="tab-btn {% if active_tab == 'proxy' %}active{% endif %}" data-tab="proxy">Load-normalised proxy indices</button>
+        <button class="tab-btn {% if active_tab == 'co2' %}active{% endif %}" data-tab="co2">CO₂ footprint &amp; ETS exposure</button>
+        <button class="tab-btn {% if active_tab == 'regulationscore' %}active{% endif %}" data-tab="regulationscore">Regulatory Readiness Score</button>
       </div>
 
-      <section id="tab-nox" class="tab-panel show">
+      <section id="tab-nox" class="tab-panel {% if active_tab == 'nox' %}show{% endif %}">
         <h2>NOx concentration performance</h2>
         <p class="subhead">Change the regulatory or internal limit to recalculate exceedance statistics instantly.</p>
 
@@ -90,7 +90,7 @@
         </div>
       </section>
 
-      <section id="tab-proxy" class="tab-panel">
+      <section id="tab-proxy" class="tab-panel {% if active_tab == 'proxy' %}show{% endif %}">
         <h2>Load-normalised proxy emissions indices</h2>
         <p class="subhead">Ratios are based on concentration divided by generated electricity (TEY). Use them to understand operational efficiency when stack flow data is unavailable.</p>
 
@@ -136,7 +136,7 @@
         </div>
       </section>
 
-      <section id="tab-co2" class="tab-panel">
+      <section id="tab-co2" class="tab-panel {% if active_tab == 'co2' %}show{% endif %}">
         <h2>CO₂ footprint &amp; ETS exposure</h2>
         <p class="subhead">Monthly view derived from <code>static/data/gt_with_synthetic_co2_*.csv</code>. Explore tonnes emitted, carbon intensity and market exposure using the synthetic EUA pricing signal.</p>
 
@@ -194,7 +194,7 @@
         </div>
       </section>
       <!--Regulation Score tab-->
-  <section class="tab-panel {% if active_tab == 'regulationscore' %}show{% endif %}" id="tab-regulationscore" role="region" aria-labelledby="tabbtn-efficiency">
+  <section class="tab-panel {% if active_tab == 'regulationscore' %}show{% endif %}" id="tab-regulationscore" role="region" aria-labelledby="tabbtn-regulationscore">
     <div class="score-container">
       <div class="score-header">Regulatory Readiness Score</div>
       <div class="score-bar">

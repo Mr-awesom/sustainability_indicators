@@ -8,7 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const panels = {
     nox: document.getElementById("tab-nox"),
     proxy: document.getElementById("tab-proxy"),
-    co2: document.getElementById("tab-co2")
+    co2: document.getElementById("tab-co2"),
+    regulationscore: document.getElementById("tab-regulationscore")
   };
 
   btns.forEach((btn) => {
@@ -16,9 +17,11 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => {
       btns.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-      Object.values(panels).forEach((panel) => panel.classList.remove("show"));
-      panels[btn.dataset.tab].classList.add("show");
-      panels[btn.dataset.tab].scrollIntoView({ behavior: "smooth", block: "start" });
+      Object.values(panels).forEach((panel) => panel && panel.classList.remove("show"));
+      const panel = panels[btn.dataset.tab];
+      if (!panel) return;
+      panel.classList.add("show");
+      panel.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
 
