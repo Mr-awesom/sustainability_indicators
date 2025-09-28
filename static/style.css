@@ -73,12 +73,15 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Aria
 /* charts area */
 .grid-charts{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:12px}
 @media (max-width:900px){.grid-charts{grid-template-columns:1fr}}
+.grid-charts.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:900px){.grid-charts.two{grid-template-columns:1fr}}
 .chart{height:320px;display:flex;flex-direction:column}
 .chart-title{font-weight:700;margin-bottom:8px}
 .chart-box{
   flex:1;border:1px dashed var(--ring);border-radius:12px;background:#fff;
   display:grid;place-items:center;color:var(--muted)
 }
+.chart-box canvas{width:100%!important;height:100%!important}
 .table-wrap{max-height:320px;overflow:auto}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{padding:6px 8px;border-bottom:1px solid var(--ring);text-align:right}

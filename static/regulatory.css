@@ -1,0 +1,99 @@
+.score-card {
+  background: var(--card);
+  border: 1px solid var(--ring);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.08);
+  margin-bottom: 16px;
+}
+
+.score-header {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.score-bar {
+  position: relative;
+  width: 100%;
+  height: 32px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.score-fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #f59e0b, #10b981);
+  border-radius: 999px;
+  transition: width 160ms ease-out;
+}
+
+.score-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.score-breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px 16px;
+}
+
+.score-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  border-bottom: 1px dashed var(--ring);
+  padding-bottom: 6px;
+  gap: 12px;
+}
+
+.score-label {
+  color: var(--muted);
+}
+
+.score-metric {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.regulation-form fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.regulation-form h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.regulation-form label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  padding: 2px 0;
+}
+
+.regulation-form input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--brand);
+}
+
+@media (max-width: 640px) {
+  .score-breakdown {
+    grid-template-columns: 1fr;
+  }
+}
