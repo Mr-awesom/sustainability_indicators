@@ -44,32 +44,37 @@
           <div class="card">
             <div class="kpi-label">Average NOx</div>
             <div class="kpi-value" id="kpi-nox-avg">–</div>
+            <p class="kpi-desc">Mean hourly NOx concentration compared with the active limit.</p>
             <div class="kpi-chips" id="nox-kpi-chips"></div>
           </div>
           <div class="card">
             <div class="kpi-label">P95 NOx</div>
             <div class="kpi-value" id="kpi-nox-p95">–</div>
+            <p class="kpi-desc">95th percentile NOx level showing the upper compliance boundary.</p>
           </div>
           <div class="card">
             <div class="kpi-label">Within limit</div>
             <div class="kpi-value" id="kpi-nox-within">–</div>
+            <p class="kpi-desc">Share of monitored hours that stayed below the chosen threshold.</p>
           </div>
           <div class="card">
             <div class="kpi-label">Sample hours</div>
             <div class="kpi-value" id="kpi-nox-hours">–</div>
-            <p class="subhead" style="margin:6px 0 0">Count of valid hourly observations.</p>
+            <p class="kpi-desc">Count of valid hourly observations feeding the statistics.</p>
           </div>
         </div>
 
         <div class="grid-charts">
           <div class="card chart">
             <div class="chart-title">Monthly NOx trend vs limit</div>
+            <p class="kpi-desc">Tracks rolling monthly averages against the configurable regulatory cap.</p>
             <div class="chart-box">
               <canvas id="chartNoxMonthly"></canvas>
             </div>
           </div>
           <div class="card">
             <div class="chart-title">Monthly summary</div>
+            <p class="kpi-desc">Tabular breakdown of concentration metrics and proxy ratios by month.</p>
             <div class="table-wrap">
               <table>
                 <thead>
@@ -98,26 +103,31 @@
           <div class="card">
             <div class="kpi-label">Average NOx / TEY</div>
             <div class="kpi-value" id="kpi-nox-proxy">–</div>
+            <p class="kpi-desc">Average nitrogen oxides per unit of turbine equivalent load.</p>
           </div>
           <div class="card">
             <div class="kpi-label">Average CO / TEY</div>
             <div class="kpi-value" id="kpi-co-proxy">–</div>
+            <p class="kpi-desc">Carbon monoxide intensity normalised by generated electricity.</p>
           </div>
           <div class="card">
             <div class="kpi-label">Average load (TEY)</div>
             <div class="kpi-value" id="kpi-avg-load">–</div>
+            <p class="kpi-desc">Typical turbine load observed across the analysed period.</p>
           </div>
         </div>
 
         <div class="grid-charts">
           <div class="card chart">
             <div class="chart-title">Monthly proxy trend</div>
+            <p class="kpi-desc">Shows how normalised NOx and CO ratios evolve versus turbine output.</p>
             <div class="chart-box">
               <canvas id="chartProxyMonthly"></canvas>
             </div>
           </div>
           <div class="card">
             <div class="chart-title">Load quartile breakdown</div>
+            <p class="kpi-desc">Compares intensity metrics across operating load segments.</p>
             <div class="table-wrap">
               <table>
                 <thead>
@@ -144,31 +154,37 @@
           <div class="card">
             <div class="kpi-label">Net generation analysed</div>
             <div class="kpi-value" id="kpi-co2-mwh">–</div>
+            <p class="kpi-desc">Total electricity (MWh) covered by the emissions ledger.</p>
             <div class="kpi-chips" id="co2-kpi-chips"></div>
           </div>
           <div class="card">
             <div class="kpi-label">Total CO₂</div>
             <div class="kpi-value" id="kpi-co2-tonnes">–</div>
+            <p class="kpi-desc">Aggregated tonnes of carbon dioxide emitted in the timeframe.</p>
           </div>
           <div class="card">
             <div class="kpi-label">Avg carbon intensity</div>
             <div class="kpi-value" id="kpi-co2-intensity">–</div>
+            <p class="kpi-desc">Weighted average emissions per MWh produced.</p>
           </div>
           <div class="card">
             <div class="kpi-label">ETS exposure</div>
             <div class="kpi-value" id="kpi-co2-ets">–</div>
+            <p class="kpi-desc">Indicative market cost using the synthetic EUA pricing signal.</p>
           </div>
         </div>
 
         <div class="grid-charts two">
           <div class="card chart">
             <div class="chart-title">Monthly CO₂ emissions vs ETS cost</div>
+            <p class="kpi-desc">Contrasts tonnes emitted with the associated ETS liability each month.</p>
             <div class="chart-box">
               <canvas id="chartCo2Monthly"></canvas>
             </div>
           </div>
           <div class="card chart">
             <div class="chart-title">Carbon intensity trend</div>
+            <p class="kpi-desc">Highlights efficiency improvements or regressions over time.</p>
             <div class="chart-box">
               <canvas id="chartCo2Intensity"></canvas>
             </div>
@@ -177,6 +193,7 @@
 
         <div class="card" style="margin-top:12px">
           <div class="chart-title">Monthly CO₂ summary</div>
+          <p class="kpi-desc">Monthly ledger of production, emissions, intensity and ETS exposure.</p>
           <div class="table-wrap">
             <table>
               <thead>
@@ -197,18 +214,31 @@
   <section class="tab-panel {% if active_tab == 'regulationscore' %}show{% endif %}" id="tab-regulationscore" role="region" aria-labelledby="tabbtn-regulationscore">
     <div class="score-container">
       <div class="score-header">Regulatory Readiness Score</div>
+      <p class="subhead">Weighted view of how well the plant meets major compliance frameworks and reporting duties.</p>
       <div class="score-bar">
         <div class="score-fill" id="scoreFill" style="width: {{ reg_compliance.score or 0 }}%;">{{ reg_compliance.score or 0 }} /
           100</div>
       </div>
 
       <div class="score-breakdown">
-        <div class="score-item">EU ETS Compliance <span>{{ reg_compliance.ets or 0 }}%</span></div>
-        <div class="score-item">CSRD Alignment <span>{{ reg_compliance.csrd or 0 }}%</span></div>
-        <div class="score-item">EED Compliance <span>{{ reg_compliance.eed or 0 }}%</span></div>
-        <div class="score-item">US EPA GHG Reporting <span>{{ reg_compliance.epa_ghg or 0 }}%</span></div>
-        <div class="score-item">Data Quality & Traceability <span>{{ reg_compliance.data_quality or 0 }}%</span></div>
-        <div class="score-item">Deadlines & Gaps <span>{{ reg_compliance.reporting_gaps or 0 }}%</span></div>
+        <div class="score-item">EU ETS Compliance <span>{{ reg_compliance.ets or 0 }}%</span>
+          <p class="kpi-desc">Allowance management and verified reporting status.</p>
+        </div>
+        <div class="score-item">CSRD Alignment <span>{{ reg_compliance.csrd or 0 }}%</span>
+          <p class="kpi-desc">Progress against sustainability disclosure requirements.</p>
+        </div>
+        <div class="score-item">EED Compliance <span>{{ reg_compliance.eed or 0 }}%</span>
+          <p class="kpi-desc">Energy efficiency audits and improvement plans.</p>
+        </div>
+        <div class="score-item">US EPA GHG Reporting <span>{{ reg_compliance.epa_ghg or 0 }}%</span>
+          <p class="kpi-desc">Status of US greenhouse gas registration and submissions.</p>
+        </div>
+        <div class="score-item">Data Quality & Traceability <span>{{ reg_compliance.data_quality or 0 }}%</span>
+          <p class="kpi-desc">Confidence in measurement calibration and audit trails.</p>
+        </div>
+        <div class="score-item">Deadlines & Gaps <span>{{ reg_compliance.reporting_gaps or 0 }}%</span>
+          <p class="kpi-desc">Outstanding actions or overdue regulatory deliverables.</p>
+        </div>
       </div>
     </div>
 
